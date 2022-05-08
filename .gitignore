@@ -1,0 +1,18 @@
+### reader_writers_2 ###
+#
+# Short and sweet, just ignoring obj directory and files 
+
+#directories ? 
+
+#ignore .o (object) files
+*.o
+*.obj
+*.elf
+
+#ignore .txt (text) files
+*.txt
+
+#ignore executables
+*.exe
+*.out
+
