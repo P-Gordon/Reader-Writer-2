@@ -1,26 +1,20 @@
 #MAKEFILE FOR PROJECT 2 READER_WRITER_2
 ODIR=obj
-INCL =../includes
-
-
+INCL=-I ../include
+LIBS=-lrt
 CC=clang
-CFLAGS=-I$(INCL)
-
-
-
-_DEPS = definitions.h file-op.h
-DEPS := $(patsubst %,$(INCL)/%,$(_DEPS))
-
-_OBJS = definitions.o file-op.o project_2.o
-OBJS := $(patsubst %,$(ODIR)/%,$(_OBJS))
-
-$(ODIR)/%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CLFAGS)
+CFLAGS=-Wall
+DEPS = defs.h file-op.h thread-work.h
+OBJS = defs.o file-op.o thread-work.o
 
 project_2: $(OBJS)
-	$(CC) -o $@ $^ $(CLFAGS)
+	$(CC) $(CFLAGS) $(INCL) $^ -o $@ $(LIBS)
 
-.PHONY clean
+%.o : %.c 
+	$(CC) $(CFLAGS) $(INCL) -c $<
+
+
+.PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o
+	rm -f *.o
