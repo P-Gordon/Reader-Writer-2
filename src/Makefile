@@ -4,8 +4,8 @@ INCL=-I ../include
 LIBS=-lrt -lpthread
 CC=clang
 CFLAGS=-Wall -std=c18
-DEPS = defs.h file-op.h thread-work.h
-OBJS = defs.o file-op.o thread-work.o project_2.o
+DEPS = defs.h file_op.h thread_work.h
+OBJS = defs.o file_op.o thread_work.o project_2.o
 
 project_2: $(OBJS)
 	$(CC) $(CFLAGS) $(INCL) $^ -o $@ $(LIBS)

@@ -17,10 +17,10 @@ void readInt(reader_info * reader_In) {
 }
 
 //spawn readers
-int spawn_readers(reader_info* r_Array) {
+int spawn_readers(reader_info * r_Array) {
 
-    for (int i = 0; i < sizeof(r_Array)/sizeof(reader_info); i++) {
-        pthread_create(&r_Array->reader_ID, NULL, )
+    for (int i = 0; i < sizeof(r_Array)/sizeof(reader_info*); i++) {
+        pthread_create(r_Array[i].reader_ID, NULL, );
     }
 
     return R_SUCC;
