@@ -9,6 +9,7 @@
 #include "defs.h"
 
 void printErr(int *errnum) {
+    
     fprintf(stderr, "Error: ", strerror(*errnum));
     return;
 }

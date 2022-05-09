@@ -16,6 +16,11 @@ void readInt (reader_info *);
 int spawn_readers (reader_info *);
 //spawn writers
 int spawn_writers (writer_info *);
+//reader driver, primary routine for readers
+void * r_driver (reader_info *);
+//writer driver, primary routine for writers
+void * w_driver (writer_info *);
+
 
 
 #endif

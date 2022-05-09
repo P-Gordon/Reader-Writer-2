@@ -36,7 +36,7 @@ int main (int argc ,char *argv[]) {
 //program Variables
     shared_dat shared_data;//shared data
     int errnum;//error number container
-
+    pthread_attr_t attr;
 //Try casting and assigning readers and writers
     if (!initReaderCnt(&shared_data, argv[1])){
         printErr(&errno);
