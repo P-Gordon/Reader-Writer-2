@@ -3,7 +3,7 @@ ODIR=obj
 INCL=-I ../include
 LIBS=-lrt -lpthread
 CC=clang
-CFLAGS=-Wall -std=c18
+CFLAGS=-std=c18 -Wall
 DEPS = defs.h file_op.h thread_work.h
 OBJS = defs.o file_op.o thread_work.o project_2.o
 

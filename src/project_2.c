@@ -36,7 +36,6 @@ int main (int argc ,char *argv[]) {
 //program Variables
     shared_dat shared_data;//shared data
     int errnum;//error number container
-    pthread_attr_t attr;
 //Try casting and assigning readers and writers
     if (!initReaderCnt(&shared_data, argv[1])){
         printErr(&errno);
@@ -57,16 +56,28 @@ int main (int argc ,char *argv[]) {
     }
 
 //Thread data structures
-    reader_info *r_Array;//pointer head for reader array
-    writer_info *w_Array;//pointer head for writer array
-    //create reader array
-    r_Array = (reader_info *)calloc(atoi(argv[1]), sizeof(reader_info));
-    //create writer array
-    w_Array = (writer_info *)calloc(atoi(argv[2]), sizeof(writer_info));
-    //check if valid
-    if (r_Array == NULL || w_Array == NULL) {
-        errnum = errno;
+    //pointer head for reader array
+    reader_info * r_Array = (reader_info *)calloc(atoi(argv[1]), sizeof(reader_info));
+    if (!r_Array) {
         fprintf(stderr, "\nError Creating reader/writer arrays: %s\n", strerror(errnum));
+        exit(EXIT_FAILURE);
+    }
+    //pointer head for writer array
+    writer_info * w_Array = (writer_info *)calloc(atoi(argv[2]), sizeof(writer_info));
+    //check if valid
+    if (!w_Array) {
+        fprintf(stderr, "\nError Creating reader/writer arrays: %s\n", strerror(errnum));
+        free(r_Array);
+        exit(EXIT_FAILURE);
+    }
+
+/******************************************************
+*Run thread Processes
+******************************************************/
+    //create reader threads
+    int ret = spawn_readers(r_Array);
+    if (ret == R_FAIL) {
+        fprintf(stderr, "\nError populating reader array: %s\n", strerror(errnum));
         if (r_Array){
             free(r_Array);
         }
@@ -77,11 +88,20 @@ int main (int argc ,char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-/******************************************************
-*Run thread Processes
-******************************************************/
-    //create reader threads
-    
+    ret = spawn_writers(w_Array);
+    if (ret == R_FAIL){
+        fprintf(stderr, "\nError populating writer array: %s\n", strerror(errnum));
+        if (r_Array){
+            free(r_Array);
+        }
+
+        if (w_Array){
+            free(w_Array);
+        }
+        exit(EXIT_FAILURE);
+    }
+
+
 /******************************************************
 * Cleanup
 ******************************************************/
