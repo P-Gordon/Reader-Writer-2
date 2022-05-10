@@ -6,10 +6,25 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "thread_work.h"
 #include "defs.h"
 #include "file_op.h"
+
+
+
+struct shared_dat {
+
+    int shared_int;
+    int num_Readers;
+    int num_Writers;
+    sem_t read;//semaphore for readers
+    sem_t block_Readers;//stop
+    sem_t writing;//binary semaphore that allows a writer to write and also blocks readers
+    sem_t file_IO;//allows only one process to access output file at a time
+
+}shared_data;
 
 void readInt(reader_info * reader_In) {
     
@@ -18,6 +33,7 @@ void readInt(reader_info * reader_In) {
 
 void * r_driver(void * reader_In){
     reader_info * reader = (reader_info *) reader_In;
+    sleep(1);
 #ifdef DEBUG
     printf("\nReader_ID: %d\n", reader.reader_ID);
 #endif
@@ -26,6 +42,7 @@ void * r_driver(void * reader_In){
 
 void * w_driver(void * writer_In){
     writer_info * writer = (writer_info *) writer_In;
+    wait(1);
 #ifdef DEBUG
     printf("\nWriter_ID: %d\n", writer.writer_ID);
 #endif

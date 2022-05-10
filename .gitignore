@@ -16,3 +16,5 @@
 *.exe
 *.out
 
+#ignore vscode files
+/.vscode

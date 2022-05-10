@@ -15,17 +15,7 @@
 
 
 //struct that holds shared data "globals"
-typedef struct shared_dat {
-
-    int shared_int;
-    int num_Readers;
-    int num_Writers;
-    sem_t read;//semaphore for readers
-    sem_t block_Readers;//stop
-    sem_t writing;//binary semaphore that allows a writer to write and also blocks readers
-    sem_t file_IO;//allows only one process to access output file at a time
-
-}shared_dat;
+typedef struct shared_dat shared_dat;
 
 
 //structure to hold reader data 
@@ -43,22 +33,24 @@ typedef struct writer_info {
     int prev_Int;
 }writer_info;
 
+//Initialize process shared data
+struct shared_dat* shared_data_init();
 //Initialize #of readers and writers
 //both return 0 on failure 1 on success
-int initReaderCnt(shared_dat *,char *);
+int init_reader_cnt(shared_dat *,char *);
 
-int initWriterCnt(shared_dat *,char *);
+int init_Writer_Cnt(shared_dat *,char *);
 
 //Initialize semaphores
 //Takes errno variable as a param
 //Returns 0 on failure 1 on success
-int initSems (shared_dat *,char *);
+int init_Sems (shared_dat *,char *);
 
 /***********************************************************
  * Cleanup
  **********************************************************/
 //returns 1 on success 0 on failure
-int cleanSems (shared_dat *);
+int clean_Sems (shared_dat *);
 
 
 #endif
