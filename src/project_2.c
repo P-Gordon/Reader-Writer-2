@@ -20,8 +20,7 @@
 #include "file_op.h"
 #include "thread_work.h"
 
-//clean dynamically created vars
-
+//clean created vars
 
 
 
@@ -34,40 +33,37 @@ int main (int argc ,char *argv[]) {
     }
 
 //program Variables
-    shared_dat shared_data;//shared data
-    int errnum;//error number container
-//Try casting and assigning readers and writers
-    if (!initReaderCnt(&shared_data, argv[1])){
-        printErr(&errno);
-        exit(EXIT_FAILURE);
-    }
+    shared_dat *shared_data = NULL;//shared data
+    char *ptr_error_str = NULL;//holds return error messages
+    int errnum = 0;//error number container
+    int ret = 0;
 
-    if (!initWriterCnt(&shared_data, argv[2])){
-        printErr(&errno);
-        exit(EXIT_FAILURE);
-    }
-
-    char *fail_Str = NULL;
-
-//Try to initialize semaphores
-    if (!initSems(&shared_data, fail_Str)) {
-        fprintf(stderr, fail_Str, strerror(errno));
+//initialize shared data
+    ret = init_Shared_Data(shared_data, argv[1], argv[2], ptr_error_str, &errnum);
+    if (R_FAIL == ret) {
+        print_Err(&errnum, ptr_error_str);
         exit(EXIT_FAILURE);
     }
 
 //Thread data structures
     //pointer head for reader array
-    reader_info * r_Array = (reader_info *)calloc(atoi(argv[1]), sizeof(reader_info));
+    errnum = 0;//Clear errnum
+    reader_info *r_Array = NULL;
+    r_Array = (reader_info *) calloc(atoi(argv[1]), sizeof(reader_info));
     if (!r_Array) {
-        fprintf(stderr, "\nError Creating reader/writer arrays: %s\n", strerror(errnum));
+        errnum = errno;
+        ptr_error_str = "Error Creating reader/writer arrays";
+        print_Err(&errnum, ptr_error_str);
         exit(EXIT_FAILURE);
     }
     //pointer head for writer array
-    writer_info * w_Array = (writer_info *)calloc(atoi(argv[2]), sizeof(writer_info));
+    writer_info * w_Array = NULL;
+    w_Array = (writer_info *) calloc(atoi(argv[2]), sizeof(writer_info));
     //check if valid
     if (!w_Array) {
-        fprintf(stderr, "\nError Creating reader/writer arrays: %s\n", strerror(errnum));
-        free(r_Array);
+        errnum = errno;
+        ptr_error_str = "Error Creating reader/writer arrays";
+        print_Err(&errnum, ptr_error_str);
         exit(EXIT_FAILURE);
     }
 
@@ -75,42 +71,53 @@ int main (int argc ,char *argv[]) {
 *Run thread Processes
 ******************************************************/
     //create reader threads
-    int ret = spawn_readers(r_Array);
+    ret = spawn_readers(r_Array);
     if (ret == R_FAIL) {
-        fprintf(stderr, "\nError populating reader array: %s\n", strerror(errnum));
-        if (r_Array){
-            free(r_Array);
-        }
-
-        if (w_Array){
-            free(w_Array);
-        }
+        print_Err(&errnum, "populating reader array");
+        free(r_Array);
+        free(w_Array);
         exit(EXIT_FAILURE);
     }
 
     ret = spawn_writers(w_Array);
-    if (ret == R_FAIL){
-        fprintf(stderr, "\nError populating writer array: %s\n", strerror(errnum));
-        if (r_Array){
-            free(r_Array);
+    if (ret == R_FAIL) {
+        print_Err(&errnum,"populating writer array");
+        ret = clean_Sems(ptr_error_str, &errnum);
+        if (R_FAIL == ret) {
+            print_Err(&errnum, ptr_error_str);
         }
-
-        if (w_Array){
-            free(w_Array);
-        }
+        free(r_Array);
+        free(w_Array);
         exit(EXIT_FAILURE);
+    }
+
+//Wait for all readers and writers to return
+    int num_readers = atoi(argv[1]);
+    int num_writers = atoi(argv[2]);
+    ret = rejoin_Threads(r_Array, w_Array, num_readers, num_writers);
+    if (R_FAIL == ret) {
+        free(r_Array);
+
+        free(w_Array);
+
+        ret = clean_Sems(ptr_error_str, &errnum);
+        if (R_FAIL == ret) {
+            print_Err(&errnum, ptr_error_str);
+        }
+        printf("\nError joining threads FATAL EXITING\n");
     }
 
 
 /******************************************************
 * Cleanup
 ******************************************************/
-    if (r_Array){
-        free(r_Array);
-    }
+    free(r_Array);
 
-    if (w_Array){
-        free(w_Array);
+    free(w_Array);
+
+    ret = clean_Sems(ptr_error_str, &errnum);
+    if (R_FAIL == ret) {
+        print_Err(&errnum, ptr_error_str);
     }
 
     return 0;

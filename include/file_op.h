@@ -6,7 +6,12 @@
 //dependencies
 #include "defs.h"
 
-void printErr(int *);
+/* void print_Err(int *);
+
+void print_Err(const char *); */
+
+void print_Err(int *, const char *);
+
 
     
 

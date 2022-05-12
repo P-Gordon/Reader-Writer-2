@@ -11,15 +11,17 @@
 
 //access shared_info
 //stores -99 in read_int variable of reader structure on fialure
-void readInt (reader_info *);
+void readInt(reader_info *);
 //spawn readers
-int spawn_readers (reader_info *);
+int spawn_readers(reader_info *);
 //spawn writers
-int spawn_writers (writer_info *);
+int spawn_writers(writer_info *);
 //reader driver, primary routine for readers
-void * r_driver (void *);
+void * r_driver(void *);
 //writer driver, primary routine for writers
-void * w_driver (void *);
+void * w_driver(void *);
+//waits for all the threads to rejoin parent
+int rejoin_Threads(reader_info *, writer_info *, int, int);
 
 
 

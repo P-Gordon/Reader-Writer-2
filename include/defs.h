@@ -10,19 +10,21 @@
 #define R_FAIL 0 //return failure code
 #define R_SUCC 1 //return success code
 #define BINARY_SEM 1 //binary sem value
-
+#define STR_ERROR_BUFF_SIZE 150 //buffer size of char array for strerror_r()
+#define TRUE 1
+#define FALSE 0
 
 
 
 //struct that holds shared data "globals"
 typedef struct shared_dat shared_dat;
 
-
 //structure to hold reader data 
 //current number to write and thread ID
 typedef struct reader_info {
     pthread_t reader_ID;
     int read_Int;
+    int done;
 }reader_info;
 
 
@@ -31,26 +33,27 @@ typedef struct writer_info {
     pthread_t writer_ID;
     int curr_Int;
     int prev_Int;
+    int done;
 }writer_info;
 
 //Initialize process shared data
-struct shared_dat* shared_data_init();
+int init_Shared_Data(shared_dat *, const char *,const char *, char *, int *);
 //Initialize #of readers and writers
 //both return 0 on failure 1 on success
-int init_reader_cnt(shared_dat *,char *);
+static int init_Reader_Cnt(const char *, int *);
 
-int init_Writer_Cnt(shared_dat *,char *);
+static int init_Writer_Cnt(const char *, int *);
 
 //Initialize semaphores
 //Takes errno variable as a param
 //Returns 0 on failure 1 on success
-int init_Sems (shared_dat *,char *);
+static int init_Sems (char *, int *);
 
 /***********************************************************
  * Cleanup
  **********************************************************/
 //returns 1 on success 0 on failure
-int clean_Sems (shared_dat *);
+int clean_Sems (char *, int *);
 
 
 #endif
