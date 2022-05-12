@@ -14,6 +14,7 @@
 
 struct shared_dat {
 
+    int shared_int;
     int num_Readers;
     int num_Writers;
     int reading;
@@ -98,6 +99,7 @@ int init_Shared_Data(shared_dat *ptr_shared_data, const char *reader_num,
     int ret = 0;
     ptr_shared_data = &shared_data;
     ptr_shared_data->reading = 0;
+    ptr_shared_data->shared_int = 0;
 
     ret = init_Reader_Cnt(reader_num, errnum);
     if (R_FAIL == ret) {
@@ -117,6 +119,18 @@ int init_Shared_Data(shared_dat *ptr_shared_data, const char *reader_num,
     return R_SUCC;
 }
 
+
+int reader_Read (reader_info * reader) {
+    int ret = 0;
+    int value = 0;
+    int errnum = 0;
+    ret = sem_getvalue(shared_data.can_read, value);
+    if (!ret) {
+        errnum = errno;
+        print_Err(&errnum, "getting value of sem CAN_READ (reader_READ)");
+    }
+
+}
 /***********************************************************
  * Cleanup
  * *********************************************************/

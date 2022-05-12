@@ -21,7 +21,7 @@ void * r_driver(void *);
 //writer driver, primary routine for writers
 void * w_driver(void *);
 //waits for all the threads to rejoin parent
-int rejoin_Threads(reader_info *, writer_info *, int, int);
+//int rejoin_Threads(reader_info *, writer_info *, int, int);
 
 
 

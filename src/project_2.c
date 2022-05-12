@@ -27,8 +27,8 @@
 //begin main
 int main (int argc ,char *argv[]) {
 
-    if (argc != 2) {
-        printf("Usage: ./project_2 #READERS #WRITERS");
+    if (argc != 3) {
+        printf("Usage: ./project_2 #READERS #WRITERS\n");
         exit(EXIT_FAILURE);
     }
 
@@ -74,8 +74,8 @@ int main (int argc ,char *argv[]) {
     ret = spawn_readers(r_Array);
     if (ret == R_FAIL) {
         print_Err(&errnum, "populating reader array");
-        free(r_Array);
-        free(w_Array);
+        //free(r_Array);
+        //free(w_Array);
         exit(EXIT_FAILURE);
     }
 
@@ -86,25 +86,47 @@ int main (int argc ,char *argv[]) {
         if (R_FAIL == ret) {
             print_Err(&errnum, ptr_error_str);
         }
-        free(r_Array);
-        free(w_Array);
+        //free(r_Array);
+        //free(w_Array);
         exit(EXIT_FAILURE);
     }
 
 //Wait for all readers and writers to return
     int num_readers = atoi(argv[1]);
     int num_writers = atoi(argv[2]);
-    ret = rejoin_Threads(r_Array, w_Array, num_readers, num_writers);
-    if (R_FAIL == ret) {
-        free(r_Array);
 
-        free(w_Array);
+    for (int i = 0; i < num_readers; i++) {
+        ret = pthread_join(r_Array[i].reader_ID, NULL);
+        if (0 != ret) {
+            print_Err(&ret, "joining reader threads");
+            free(r_Array);
 
-        ret = clean_Sems(ptr_error_str, &errnum);
-        if (R_FAIL == ret) {
-            print_Err(&errnum, ptr_error_str);
+            free(w_Array);
+
+            ret = clean_Sems(ptr_error_str, &errnum);
+            if (R_FAIL == ret) {
+                print_Err(&errnum, ptr_error_str);
+            }
+            printf("\nError joining threads FATAL EXITING\n");
+            exit(EXIT_FAILURE);
         }
-        printf("\nError joining threads FATAL EXITING\n");
+    }
+
+    for (int i = 0; i < num_writers; i++) {
+        ret = pthread_join(w_Array[i].writer_ID, NULL);
+        if (0 != ret) {
+            print_Err(&ret, "joining writer threads");
+            free(r_Array);
+
+            free(w_Array);
+
+            ret = clean_Sems(ptr_error_str, &errnum);
+            if (R_FAIL == ret) {
+                print_Err(&errnum, ptr_error_str);
+            }
+            printf("\nError joining threads FATAL EXITING\n");
+            }
+            exit(EXIT_FAILURE);
     }
 
 

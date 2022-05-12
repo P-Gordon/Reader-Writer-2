@@ -26,21 +26,24 @@ struct shared_dat {
 
 }shared_data;
 
-void readInt(reader_info * reader_In) {
+void readInt(reader_info *reader_In) {
     
     return;
 }
 
-void *r_driver(void * reader_In){
+void *r_driver(void *reader_In){
     reader_info *reader = (reader_info *) reader_In;
-    sleep(1);
+    int ret = 0;
+    ret = sem_getvalue();
+    if (ret )
 #ifdef DEBUG
     printf("\nReader_ID: %lu\n", reader->reader_ID);
 #endif
-    return NULL;
+    sleep(1);
+    return ;
 }
 
-void *w_driver(void * writer_In){
+void *w_driver(void *writer_In){
     writer_info *writer = (writer_info *) writer_In;
     sleep(1);
 #ifdef DEBUG
@@ -49,7 +52,7 @@ void *w_driver(void * writer_In){
     return NULL;
 }
 //spawn readers
-int spawn_readers(reader_info * r_Array) {
+int spawn_readers(reader_info *r_Array) {
     int ret = 0;
     //populate reader thread array, loops until it reaches size of the array
     for (int i = 0; i < sizeof(r_Array)/sizeof(reader_info*); i++) {
@@ -82,6 +85,7 @@ int spawn_writers(writer_info * w_Array) {
 //rejoin threads
 //both arrays are checked for the returning thread iD, skip is set to true if its found in the
 //reader array r_Array so the 
+/*
 int rejoin_Threads(reader_info *r_Array, writer_info *w_Array, int total_readers, int total_writers) {
     int total_members = total_readers + total_writers;
     int ret = 0;
@@ -113,4 +117,4 @@ int rejoin_Threads(reader_info *r_Array, writer_info *w_Array, int total_readers
     }
 
     return R_SUCC;
-}
+}*/
