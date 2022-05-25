@@ -6,12 +6,9 @@
 //Dependencies
 #include "defs.h"
 
-//create reader thread
 
 
-//access shared_info
-//stores -99 in read_int variable of reader structure on fialure
-void readInt(reader_info *);
+
 //spawn readers
 int spawn_readers(reader_info *);
 //spawn writers
@@ -20,8 +17,7 @@ int spawn_writers(writer_info *);
 void * r_driver(void *);
 //writer driver, primary routine for writers
 void * w_driver(void *);
-//waits for all the threads to rejoin parent
-//int rejoin_Threads(reader_info *, writer_info *, int, int);
+
 
 
 

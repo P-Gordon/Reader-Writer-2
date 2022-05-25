@@ -6,6 +6,8 @@
 
 /*Main
 *Takes in two command line args 1. # of readers; 2. # of writers
+*To compile run make from the src directory
+*Compiled with clang 10
 */
 
 //Includes
@@ -20,8 +22,37 @@
 #include "file_op.h"
 #include "thread_work.h"
 
-//clean created vars
 
+//variables only global so funciton can be called to clean
+reader_info *r_Array = NULL;
+writer_info *w_Array = NULL;
+
+//clean created vars
+void cleanup() {
+    int num_readers = 0;
+    int num_writers = 0;
+    int ret = 0;
+    int errnum = 0;
+    char *error_str = NULL;
+
+    ret = clean_Sems(error_str, &errnum);
+    if (R_FAIL == ret) {
+        print_Err(&errnum, error_str);
+        return;
+    }
+
+    get_Reader_Cnt(&num_readers);
+    get_Writer_Cnt(&num_writers);
+    //free the elements of the arrays
+    //for (int i = 0; i < num_readers; i++) {
+        free(r_Array);
+    //}
+    //for (int i = 0; i < num_writers; i++) {
+        free(w_Array);
+    //}
+    
+    return;
+}
 
 
 //begin main
@@ -48,7 +79,6 @@ int main (int argc ,char *argv[]) {
 //Thread data structures
     //pointer head for reader array
     errnum = 0;//Clear errnum
-    reader_info *r_Array = NULL;
     r_Array = (reader_info *) calloc(atoi(argv[1]), sizeof(reader_info));
     if (!r_Array) {
         errnum = errno;
@@ -57,7 +87,6 @@ int main (int argc ,char *argv[]) {
         exit(EXIT_FAILURE);
     }
     //pointer head for writer array
-    writer_info * w_Array = NULL;
     w_Array = (writer_info *) calloc(atoi(argv[2]), sizeof(writer_info));
     //check if valid
     if (!w_Array) {
@@ -74,40 +103,29 @@ int main (int argc ,char *argv[]) {
     ret = spawn_readers(r_Array);
     if (ret == R_FAIL) {
         print_Err(&errnum, "populating reader array");
-        //free(r_Array);
-        //free(w_Array);
+        cleanup();
         exit(EXIT_FAILURE);
     }
 
     ret = spawn_writers(w_Array);
     if (ret == R_FAIL) {
         print_Err(&errnum,"populating writer array");
-        ret = clean_Sems(ptr_error_str, &errnum);
-        if (R_FAIL == ret) {
-            print_Err(&errnum, ptr_error_str);
-        }
-        //free(r_Array);
-        //free(w_Array);
+        cleanup();
         exit(EXIT_FAILURE);
     }
 
 //Wait for all readers and writers to return
-    int num_readers = atoi(argv[1]);
-    int num_writers = atoi(argv[2]);
+    int num_readers = 0;
+    int num_writers = 0;
+
+    get_Reader_Cnt(&num_readers);
+    get_Writer_Cnt(&num_writers);
 
     for (int i = 0; i < num_readers; i++) {
         ret = pthread_join(r_Array[i].reader_ID, NULL);
         if (0 != ret) {
             print_Err(&ret, "joining reader threads");
-            free(r_Array);
-
-            free(w_Array);
-
-            ret = clean_Sems(ptr_error_str, &errnum);
-            if (R_FAIL == ret) {
-                print_Err(&errnum, ptr_error_str);
-            }
-            printf("\nError joining threads FATAL EXITING\n");
+            cleanup();
             exit(EXIT_FAILURE);
         }
     }
@@ -116,31 +134,16 @@ int main (int argc ,char *argv[]) {
         ret = pthread_join(w_Array[i].writer_ID, NULL);
         if (0 != ret) {
             print_Err(&ret, "joining writer threads");
-            free(r_Array);
-
-            free(w_Array);
-
-            ret = clean_Sems(ptr_error_str, &errnum);
-            if (R_FAIL == ret) {
-                print_Err(&errnum, ptr_error_str);
-            }
-            printf("\nError joining threads FATAL EXITING\n");
-            }
+            cleanup();
             exit(EXIT_FAILURE);
+        }
     }
-
 
 /******************************************************
 * Cleanup
 ******************************************************/
-    free(r_Array);
 
-    free(w_Array);
-
-    ret = clean_Sems(ptr_error_str, &errnum);
-    if (R_FAIL == ret) {
-        print_Err(&errnum, ptr_error_str);
-    }
+    cleanup();
 
     return 0;
 }

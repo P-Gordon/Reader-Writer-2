@@ -11,8 +11,6 @@
 #define R_SUCC 1 //return success code
 #define BINARY_SEM 1 //binary sem value
 #define STR_ERROR_BUFF_SIZE 150 //buffer size of char array for strerror_r()
-#define TRUE 1
-#define FALSE 0
 
 
 
@@ -24,7 +22,7 @@ typedef struct shared_dat shared_dat;
 typedef struct reader_info {
     pthread_t reader_ID;
     int read_Int;
-    int done;
+    int thread_num;
 }reader_info;
 
 
@@ -33,7 +31,7 @@ typedef struct writer_info {
     pthread_t writer_ID;
     int curr_Int;
     int prev_Int;
-    int done;
+    int thread_num;
 }writer_info;
 
 //Initialize process shared data
@@ -49,11 +47,26 @@ static int init_Writer_Cnt(const char *, int *);
 //Returns 0 on failure 1 on success
 static int init_Sems (char *, int *);
 
+
+void get_Reader_Cnt(int *);
+
+void get_Writer_Cnt(int *);
+
+void r_Write_To_File(reader_info *);
+
+void w_Write_To_File(writer_info *);
+
+int reader_Read(reader_info *);
+
+int writer_RW(writer_info *);
+
+
+
+
 /***********************************************************
  * Cleanup
  **********************************************************/
 //returns 1 on success 0 on failure
 int clean_Sems (char *, int *);
-
 
 #endif
